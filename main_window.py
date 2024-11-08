@@ -4,6 +4,9 @@ from database.birthday_database import BirthdayDatabase
 from datetime import datetime
 
 
+# РАЗРОБОТАТЬ НОРМАЛЬНУЮ back_btn
+# СОЗДАТЬ МЕТОДЫ ДЛЯ СКРЫТИЯ ВСЕХ ОКОН (main_window, *crud)
+
 class MainWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -11,7 +14,7 @@ class MainWindow(QWidget):
         self.setWindowTitle("Birthday calendar")
         self.setFixedSize(500, 500)
 
-        self.background_image = QPixmap("images/background.png")
+        self.background_image = QPixmap("images/background_2.png")
         self.db = BirthdayDatabase()
 
         self.buttons_stylesheet = """
@@ -106,54 +109,55 @@ class MainWindow(QWidget):
             label.setText(current_labels[label])
 
     def add_birthday_btn_clicked(self):
-        def back_btn_clicked():
-            self.hide_widgets(*inner_buttons, *inner_labels, *inner_lines_edit)
-            self.show_widgets(*self.main_btns.keys(), *self.main_lbls)
 
         def submit_btn_clicked():
             try:
+                if len(date_le.text()) == 0 or len(last_name_le.text()) == 0 or len(first_name_le.text()) == 0:
+                    raise ValueError
+
                 date = datetime.strptime(date_le.text(), "%d.%m.%Y")
                 self.db.add(first_name_le.text(), last_name_le.text(), date)
             except ValueError:
-                self.hide_widgets(*inner_buttons.keys(), *inner_labels.keys(), *inner_lines_edit.keys())
+                print("ValueError")
+                self.hide_widgets(*inner_btns.keys(), *inner_lse.keys(), *inner_lbls.keys())
 
                 warning_lbl = QLabel(self)
                 warning_lbl.setStyleSheet(self.labels_stylesheet)
-                warning_lbl.setText("You entered too big first name or last name, or date format was incorrect")
+                warning_lbl.setText("You entered too big\nfirst name or last name,\nor date format was incorrect")
+                warning_lbl.move(110, 200)
+                warning_lbl.show()
 
         def buttons():
-            self.set_buttons_settings(inner_buttons)
-            self.show_widgets(*inner_buttons.keys())
-            back_btn.move(160, 80)
+            self.set_buttons_settings(inner_btns)
+            self.show_widgets(*inner_btns.keys())
             submit_btn.move(165, 300)
 
         def labels():
             x = 100
             y = 160
 
-            self.set_labels_settings(inner_labels)
+            self.set_labels_settings(inner_lbls)
 
-            for label in inner_labels:
+            for label in inner_lbls:
                 label.move(x, y)
                 y += self.labels_margin
 
-            self.show_widgets(*inner_labels)
+            self.show_widgets(*inner_lbls)
 
         def lines_edit():
             x = 240
             y = 159
 
-            for line in inner_lines_edit.keys():
+            for line in inner_lse.keys():
                 line.setStyleSheet(self.lines_edit_stylesheet)
-                line.setPlaceholderText(inner_lines_edit[line])
+                line.setPlaceholderText(inner_lse[line])
                 line.move(x, y)
                 y += self.lines_edit_margin
 
-            self.show_widgets(*inner_lines_edit)
+            self.show_widgets(*inner_lse)
 
         self.hide_widgets(*self.main_btns.keys(), *self.main_lbls)
 
-        back_btn = QPushButton(self)
         submit_btn = QPushButton(self)
 
         first_name_lbl = QLabel(self)
@@ -164,9 +168,9 @@ class MainWindow(QWidget):
         last_name_le = QLineEdit(self)
         date_le = QLineEdit(self)
 
-        inner_buttons = {back_btn: ["Back", back_btn_clicked], submit_btn: ["Submit", submit_btn_clicked]}
-        inner_labels = {first_name_lbl: "First name", last_name_lbl: "Last name", date_lbl: "Date"}
-        inner_lines_edit = {first_name_le: "Vladimir", last_name_le: "Putin", date_le: "07.10.1952"}
+        inner_btns = {submit_btn: ["Submit", submit_btn_clicked]}
+        inner_lbls = {first_name_lbl: "First name", last_name_lbl: "Last name", date_lbl: "Date"}
+        inner_lse = {first_name_le: "Vladimir", last_name_le: "Putin", date_le: "07.10.1952"}
 
         buttons()
         labels()
